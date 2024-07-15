@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-server
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: kokekiko2525
+      MYSQL_DATABASE: anki_db
+      MYSQL_USER: Alan
+      MYSQL_PASSWORD: kokekiko2525
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      - ./mysql-data/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - anki-network
+
+  client:
+    build:
+      context: ./fronted
+    container_name: client-server
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+      - api
+    networks:
+      - anki-network
+
+  api:
+    build:
+      context: ./api-server
+    container_name: api-server
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql-server
+      DB_USER: Alan
+      DB_PASSWORD: kokekiko2525
+      DB_NAME: anki_db
+    networks:
+      - anki-network
+
+networks:
+  anki-network:
