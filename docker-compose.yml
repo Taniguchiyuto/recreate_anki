@@ -11,12 +11,17 @@ services:
       MYSQL_USER: Alan
       MYSQL_PASSWORD: kokekiko2525
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - ./mysql-data:/var/lib/mysql
-      - ./mysql-data/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./initdb:/docker-entrypoint-initdb.d
     networks:
       - anki-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   client:
     build:
@@ -37,7 +42,8 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     environment:
       DB_HOST: mysql-server
       DB_USER: Alan

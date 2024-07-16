@@ -1,3 +1,0 @@
-
- SHOW TABLES;
-describe cards
