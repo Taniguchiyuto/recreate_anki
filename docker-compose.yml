@@ -14,7 +14,6 @@ services:
       - "3307:3306"
     volumes:
       - ./mysql-data:/var/lib/mysql
-      - ./initdb:/docker-entrypoint-initdb.d
     networks:
       - anki-network
     healthcheck:
@@ -22,6 +21,23 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  migrate:
+    image: migrate/migrate
+    command:
+      [
+        "-path",
+        "/migrations",
+        "-database",
+        "mysql://Alan:kokekiko2525@tcp(mysql-server:3306)/anki_db",
+        "up",
+      ]
+    volumes:
+      - ./db/migrations:/migrations
+    depends_on:
+      - mysql
+    networks:
+      - anki-network
 
   client:
     build:
@@ -45,7 +61,7 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      DB_HOST: mysql
+      DB_HOST: mysql-server
       DB_USER: Alan
       DB_PASSWORD: kokekiko2525
       DB_NAME: anki_db
