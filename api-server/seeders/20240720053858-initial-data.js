@@ -14,24 +14,24 @@ module.exports = {
       {}
     );
 
-    await queryInterface.bulkInsert(
-      "DECKS",
-      [
-        {
-          user_id: 1,
-          deck_name: "My First Deck",
-        },
-        {
-          user_id: 1,
-          deck_name: "うんこ単語帳",
-        },
-      ],
-      {}
-    );
+    // await queryInterface.bulkInsert(
+    //   "DECKS",
+    //   [
+    //     {
+    //       user_id: 1,
+    //       deck_name: "My First Deck",
+    //     },
+    //     {
+    //       user_id: 1,
+    //       deck_name: "うんこ単語帳",
+    //     },
+    //   ],
+    //   {}
+    // );
   },
 
   down: async (queryInterface, Sequelize) => {
     await queryInterface.bulkDelete("USERS", null, {});
-    await queryInterface.bulkDelete("DECKS", null, {});
+    // await queryInterface.bulkDelete("DECKS", null, {});
   },
 };
