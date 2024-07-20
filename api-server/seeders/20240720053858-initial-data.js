@@ -9,8 +9,6 @@ module.exports = {
           username: "demo_user",
           email: "demo@example.com",
           password: "password123",
-          created_at: new Date(),
-          updated_at: new Date(),
         },
       ],
       {}
@@ -22,16 +20,10 @@ module.exports = {
         {
           user_id: 1,
           deck_name: "My First Deck",
-          image_path: "normal.png",
-          created_at: new Date(),
-          updated_at: new Date(),
         },
         {
           user_id: 1,
           deck_name: "うんこ単語帳",
-          image_path: "unko.png",
-          created_at: new Date(),
-          updated_at: new Date(),
         },
       ],
       {}
