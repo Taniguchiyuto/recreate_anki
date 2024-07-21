@@ -14,6 +14,7 @@ services:
       - "3307:3306"
     volumes:
       - ./mysql-data:/var/lib/mysql
+      - ./db/config/my.cnf:/etc/mysql/conf.d/my.cnf
     networks:
       - anki-network
     healthcheck:
