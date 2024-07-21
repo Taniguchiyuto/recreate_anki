@@ -1,5 +1,4 @@
 version: "3.8"
-
 services:
   mysql:
     image: mysql:8.0
@@ -22,24 +21,15 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
   migrate:
     image: migrate/migrate
-    command:
-      [
-        "-path",
-        "/migrations",
-        "-database",
-        "mysql://Alan:kokekiko2525@tcp(mysql-server:3306)/anki_db",
-        "up",
-      ]
+    command: ["-path", "/migrations", "-database", "mysql://Alan:kokekiko2525@tcp(mysql-server:3306)/anki_db", "up"]
     volumes:
       - ./db/migrations:/migrations
     depends_on:
       - mysql
     networks:
       - anki-network
-
   client:
     build:
       context: ./fronted
@@ -51,7 +41,6 @@ services:
       - api
     networks:
       - anki-network
-
   api:
     build:
       context: ./api-server
@@ -68,6 +57,5 @@ services:
       DB_NAME: anki_db
     networks:
       - anki-network
-
 networks:
   anki-network:
