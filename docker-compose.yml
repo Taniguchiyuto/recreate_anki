@@ -27,7 +27,8 @@ services:
     volumes:
       - ./db/migrations:/migrations
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - anki-network
   client:
@@ -37,8 +38,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - mysql
-      - api
+      api:
+        condition: service_started
     networks:
       - anki-network
   api:
@@ -48,8 +49,10 @@ services:
     ports:
       - "8000:8000"
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       mysql:
-        condition: service_healthy
+        condition: service_started
     environment:
       DB_HOST: mysql-server
       DB_USER: Alan
