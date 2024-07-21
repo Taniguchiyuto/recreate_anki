@@ -1,5 +1,4 @@
 version: "3.8"
-
 services:
   mysql:
     image: mysql:8.0
@@ -14,6 +13,7 @@ services:
       - "3307:3306"
     volumes:
       - ./mysql-data:/var/lib/mysql
+      - ./db/config/my.cnf:/etc/mysql/conf.d/my.cnf
     networks:
       - anki-network
     healthcheck:
@@ -21,24 +21,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
   migrate:
     image: migrate/migrate
-    command:
-      [
-        "-path",
-        "/migrations",
-        "-database",
-        "mysql://Alan:kokekiko2525@tcp(mysql-server:3306)/anki_db",
-        "up",
-      ]
+    command: ["-path", "/migrations", "-database", "mysql://Alan:kokekiko2525@tcp(mysql-server:3306)/anki_db", "up"]
     volumes:
       - ./db/migrations:/migrations
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - anki-network
-
   client:
     build:
       context: ./fronted
@@ -46,11 +38,10 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - mysql
-      - api
+      api:
+        condition: service_started
     networks:
       - anki-network
-
   api:
     build:
       context: ./api-server
@@ -58,8 +49,10 @@ services:
     ports:
       - "8000:8000"
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       mysql:
-        condition: service_healthy
+        condition: service_started
     environment:
       DB_HOST: mysql-server
       DB_USER: Alan
@@ -67,6 +60,5 @@ services:
       DB_NAME: anki_db
     networks:
       - anki-network
-
 networks:
   anki-network:
