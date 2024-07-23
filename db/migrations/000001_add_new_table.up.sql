@@ -10,17 +10,17 @@ CREATE TABLE IF NOT EXISTS CARDS (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nid INT,
     did INT,
-    ord INT,
-    mod INT,
+    `ord` INT,
+    `mod` INT,
     usn INT,
-    type INT,
+    `type` INT,
     queue INT,
     due INT,
     ivl INT,
     factor INT,
     reps INT,
     lapses INT,
-    left INT,
+    `left` INT,
     odue INT,
     odid INT,
     flags INT,
@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS CARDS (
     FOREIGN KEY (nid) REFERENCES NOTES(id),
     FOREIGN KEY (did) REFERENCES DECKS(id)
 );
+
 
 CREATE TABLE IF NOT EXISTS NOTES (
     id INT AUTO_INCREMENT PRIMARY KEY,
