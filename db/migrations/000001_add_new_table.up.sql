@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS NOTES (
     id INT AUTO_INCREMENT PRIMARY KEY,
     guid VARCHAR(255),
     mid INT,
-    mod INT,
+    `mod` INT,
     usn INT,
     tags TEXT,
     flds TEXT,  -- 実際の質問や答えのフィールド
