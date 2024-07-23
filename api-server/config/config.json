@@ -10,14 +10,14 @@
     "username": "Alan",
     "password": "kokekiko2525",
     "database": "anki_db_test",
-    "host": "mysql-server",
+    "host": "mysql",
     "dialect": "mysql"
   },
   "production": {
     "username": "Alan",
     "password": "kokekiko2525",
     "database": "anki_db_production",
-    "host": "mysql-server",
+    "host": "mysql",
     "dialect": "mysql"
   }
 }

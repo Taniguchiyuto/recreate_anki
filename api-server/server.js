@@ -11,7 +11,7 @@ app.use(express.json());
 
 // Create a connection to the database
 const db = mysql.createConnection({
-  host: "mysql-server",
+  host: "mysql",
   user: "Alan",
   password: "kokekiko2525",
   database: "anki_db",

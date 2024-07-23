@@ -2,7 +2,7 @@ version: "3.8"
 services:
   mysql:
     image: mysql:8.0
-    container_name: mysql-server
+    container_name: mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: kokekiko2525
@@ -21,9 +21,17 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
   migrate:
     image: migrate/migrate
-    command: ["-path", "/migrations", "-database", "mysql://Alan:kokekiko2525@tcp(mysql-server:3306)/anki_db", "up"]
+    command:
+      [
+        "-path",
+        "/migrations",
+        "-database",
+        "mysql://Alan:kokekiko2525@tcp(mysql:3306)/anki_db",
+        "up",
+      ]
     volumes:
       - ./db/migrations:/migrations
     depends_on:
@@ -31,6 +39,7 @@ services:
         condition: service_healthy
     networks:
       - anki-network
+
   client:
     build:
       context: ./fronted
@@ -42,6 +51,7 @@ services:
         condition: service_started
     networks:
       - anki-network
+
   api:
     build:
       context: ./api-server
@@ -54,11 +64,13 @@ services:
       mysql:
         condition: service_started
     environment:
-      DB_HOST: mysql-server
+      DB_HOST: mysql
       DB_USER: Alan
       DB_PASSWORD: kokekiko2525
       DB_NAME: anki_db
     networks:
       - anki-network
+
 networks:
   anki-network:
+    driver: bridge
