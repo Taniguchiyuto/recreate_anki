@@ -6,7 +6,7 @@ function DeckDetail() {
   const [cards, setCards] = useState([]);
 
   useEffect(() => {
-    fetch(`http://api-server-domain:8000/api/deck/${id}/cards`) // APIエンドポイントにリクエストを送信
+    fetch(`http://localhost:8000/api/deck/${id}/cards`) // APIエンドポイントにリクエストを送信
       .then((response) => response.json())
       .then((data) => setCards(data));
   }, [id]);

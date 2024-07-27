@@ -37,13 +37,33 @@ app.get("/api/client", (req, res) => {
   });
 });
 
-// app.get("/api/admin-data", (req, res) => {
-//   db.query("SELECT * FROM admin.admin_table", (err, results) => {
-//     if (err) throw err;
-//     res.json(results);
-//   });
-// });
+app.get("/api/deck/:id/cards", (req, res) => {
+  const cardId = req.params.id;
 
+  // SQLクエリを実行してカードデータを取得
+  const query = `
+  SELECT cards.id, notes.flds, cards.queue, cards.type
+  FROM cards
+  JOIN notes ON cards.nid = notes.id
+  WHERE cards.did = ?
+`;
+  db.query(query, [cardId], (err, results) => {
+    if (err) {
+      console.error("データ取得エラー:", err);
+      res.status(500).send("サーバーエラー");
+      console.log("ko");
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).send("カードが見つかりません");
+      console.log("ここ");
+    } else {
+      res.json(results);
+      console.log("koko");
+    }
+  });
+});
 // Start the server
 app.listen(port, () => {
   console.log(`API server running on port ${port}`);
