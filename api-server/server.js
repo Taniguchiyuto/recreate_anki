@@ -40,15 +40,30 @@ app.get("/api/client", (req, res) => {
 app.get("/api/deck/:id/cards", (req, res) => {
   console.log("kkoko");
   const cardId = req.params.id;
+  const now = Math.floor(Date.now() / 1000); // 現在のUNIXタイムスタンプ
 
   // SQLクエリを実行してカードデータを取得
   const query = `
-    SELECT cards.id, notes.flds, cards.queue, cards.type
+    SELECT 
+      cards.id, 
+      notes.flds, 
+      cards.queue, 
+      cards.type,
+      cards.due, 
+      cards.ivl, 
+      cards.factor, 
+      cards.reps, 
+      cards.lapses,
+      cards.odue, 
+      cards.odid,
+      cards.flags,
+      cards.data
     FROM cards
     JOIN notes ON cards.nid = notes.id
-    WHERE cards.did = ?
+    WHERE cards.did = ? AND cards.due < ?
   `;
-  db.query(query, [cardId], (err, results) => {
+
+  db.query(query, [cardId, now], (err, results) => {
     if (err) {
       console.error("データ取得エラー:", err);
       res.status(500).send("サーバーエラー");
@@ -65,6 +80,20 @@ app.get("/api/deck/:id/cards", (req, res) => {
     }
   });
 });
+
+// app.post("/api/deck/:deckId/cards/:cardId/evaluate", (req, res) => {
+//   const { deckId, cardId } = req.params;
+//   const { evaluation } = req.body;
+
+//   // ここで評価の処理を実装
+//   console.log(
+//     `Received evaluation for card ${cardId} in deck ${deckId}:`,
+//     evaluation
+//   );
+
+//   // レスポンスを返す
+//   res.status(200).json({ message: "Evaluation received" });
+// });
 // Start the server
 app.listen(port, () => {
   console.log(`API server running on port ${port}`);
