@@ -24,8 +24,8 @@ CREATE TABLE cards (
     `type` INT NOT NULL,  -- 'type'は予約語のためバッククォートで囲む
     queue INT NOT NULL,
     due INT NOT NULL,
-    ivl INT,
-    factor INT,
+    ivl  FLOAT,
+    factor FLOAT,
     reps INT,
     lapses INT,
     `left` INT,  -- 'left'は予約語のためバッククォートで囲む
