@@ -2,7 +2,7 @@
 CREATE TABLE notes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     guid VARCHAR(255) NOT NULL,
-    mid INT NOT NULL,
+    mid INT NOT NULL REFERENCES models(id),
     `mod` INT NOT NULL,  -- 'mod'は予約語のためバッククォートで囲む
     usn INT NOT NULL,
     tags TEXT,
