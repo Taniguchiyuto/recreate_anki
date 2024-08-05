@@ -1,0 +1,21 @@
+{
+  "name": "anki_demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "demo .js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed": "node prisma/seed.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Taniguchiyuto/anki_demo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Taniguchiyuto/anki_demo/issues"
+  },
+  "homepage": "https://github.com/Taniguchiyuto/anki_demo#readme"
+}

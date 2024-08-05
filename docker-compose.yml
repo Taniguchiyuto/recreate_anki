@@ -1,4 +1,5 @@
 version: "3.8"
+
 services:
   mysql:
     image: mysql:8.0
@@ -22,52 +23,33 @@ services:
       timeout: 5s
       retries: 5
 
-  migrate:
-    image: migrate/migrate
-    command:
-      [
-        "-path",
-        "/migrations",
-        "-database",
-        "mysql://Alan:kokekiko2525@tcp(mysql:3306)/anki_db",
-        "up",
-      ]
-    volumes:
-      - ./db/migrations:/migrations
+  api:
+    build:
+      context: ./api-server
+      dockerfile: Dockerfile
+    container_name: api-server
     depends_on:
       mysql:
         condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: mysql
+      DB_USER: Alan
+      DB_PASSWORD: kokekiko2525
+      DB_NAME: anki_db
     networks:
       - anki-network
 
   client:
     build:
       context: ./fronted
+      dockerfile: Dockerfile
     container_name: client-server
+    depends_on:
+      - api
     ports:
       - "3000:3000"
-    depends_on:
-      api:
-        condition: service_started
-    networks:
-      - anki-network
-
-  api:
-    build:
-      context: ./api-server
-    container_name: api-server
-    ports:
-      - "8000:8000"
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
-      mysql:
-        condition: service_started
-    environment:
-      DB_HOST: mysql
-      DB_USER: Alan
-      DB_PASSWORD: kokekiko2525
-      DB_NAME: anki_db
     networks:
       - anki-network
 

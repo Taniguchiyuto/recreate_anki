@@ -1,0 +1,31 @@
+model User {
+  id    Int    @id @default(autoincrement())
+  username String
+  email  String @unique
+  password String
+  createdAt DateTime @default(now())
+  decks  Deck[]   // ここでUserとDeckの双方向リレーションシップを定義
+
+ 
+}
+
+
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+
+
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+model Deck {
+  id        Int    @id @default(autoincrement())
+  userId    Int
+  deckName  String
+  user      User   @relation(fields: [userId], references: [id])
+}
+
