@@ -27,5 +27,96 @@ model Deck {
   userId    Int
   deckName  String
   user      User   @relation(fields: [userId], references: [id])
+  cards Card[]
 }
 
+model Note {
+  id    Int     @id @default(autoincrement())
+  guid  String  @db.VarChar(255)
+  mid   Int
+  mod   Int     @map("mod")
+  usn   Int
+  tags  String? @db.Text
+  flds  String? @db.Text
+  sfld  String?
+  csum  Int
+  flags Int?
+  data  String? @db.Text
+
+  model Model   @relation(fields: [mid], references: [id])
+  cards Card[]
+
+}
+
+model Card {
+  id      Int     @id @default(autoincrement())
+  nid     Int
+  ord     Int     @map("ord")
+  mod     Int     @map("mod")
+  usn     Int
+  type    Int     @map("type")
+  queue   Int
+  due     Int
+  ivl     Float?
+  factor  Float?
+  reps    Int?
+  lapses  Int?
+  left    Int?    @map("left")
+  odue    Int?
+  odid    Int?
+  flags   Int?
+  data    String? @db.Text
+  did     Int     // 新しいフィールド
+
+  note    Note    @relation(fields: [nid], references: [id])
+  deck    Deck    @relation(fields: [did], references: [id])
+  revlogs Revlog[]
+}
+
+
+
+model Col {
+  id         Int      @id @default(autoincrement())
+  crt        Int      @map("crt")
+  mod        Int      @map("mod")
+  scm        Int      @map("scm")
+  ver        Int      @map("ver")
+  dty        Int      @map("dty")
+  usn        Int      @map("usn")
+  ls         Int      @map("ls")
+  conf       String   @db.Text
+  models     String   @db.Text
+  decks      String   @db.Text
+  dconf      String   @db.Text
+  tags       String   @db.Text
+
+  
+}
+
+model Model {
+  id        Int      @id @default(autoincrement())
+  name      String
+  flds      Json     // JSON形式でフィールドの定義を保持
+  templates Json     // JSON形式でカードテンプレートを保持
+  css       String   // カードのCSSスタイリング
+  conf      Json     // モデル固有の設定を保持
+
+  notes     Note[]   // モデルにリンクされているノート
+
+  
+}
+
+model Revlog {
+  id     BigInt   @id @default(autoincrement())
+  cid    Int      // カードID
+  usn    Int      // 更新シーケンス番号
+  ease   Int      // 復習時の評価（簡単、難しいなど）
+  ivl    Int      // カードの新しい間隔（日数）
+  lastIvl Int     // 復習前の間隔（日数）
+  factor Int      // カードの難易度係数
+  time   Int      // 復習に費やした時間（ミリ秒）
+  type   Int      // 復習のタイプ（学習、復習など）
+
+  card   Card @relation(fields: [cid], references: [id])
+
+}

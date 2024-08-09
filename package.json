@@ -4,7 +4,10 @@
   "description": "",
   "main": "demo .js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-scripts eject",
     "seed": "node prisma/seed.js"
   },
   "repository": {
@@ -17,5 +20,20 @@
   "bugs": {
     "url": "https://github.com/Taniguchiyuto/anki_demo/issues"
   },
-  "homepage": "https://github.com/Taniguchiyuto/anki_demo#readme"
+  "homepage": "https://github.com/Taniguchiyuto/anki_demo#readme",
+  "dependencies": {
+    "assert": "^2.1.0",
+    "crypto-browserify": "^3.12.0",
+    "dotenv": "^16.4.5",
+    "https-browserify": "^1.0.0",
+    "os-browserify": "^0.3.0",
+    "react-app-rewired": "^2.2.1",
+    "react-scripts": "^4.0.3",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "url": "^0.11.4",
+    "webpack": "^4.47.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.3"
+  }
 }

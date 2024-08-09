@@ -32,7 +32,7 @@ function ClientComponent() {
               {/* <div className="card-image">
                 <img src={`../img/${item.image_path}`} alt="Deck" />
               </div> */}
-              <div className="card-title">{item.deck_name}</div>
+              <div className="card-title">{item.deckname}</div>
             </div>
           ))
         ) : (

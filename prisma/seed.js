@@ -1,3 +1,5 @@
+require("dotenv").config();
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
@@ -15,6 +17,19 @@ async function main() {
       username: "Bob",
       email: "bob@example.com",
       password: "password456",
+    },
+  });
+  const deck1 = await prisma.deck.create({
+    data: {
+      userId: user1.id,
+      deckName: "Biology 101",
+    },
+  });
+
+  const deck2 = await prisma.deck.create({
+    data: {
+      userId: user2.id,
+      deckName: "History of Art",
     },
   });
 

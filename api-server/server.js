@@ -31,7 +31,7 @@ db.connect((error) => {
 
 // Define API endpoints
 app.get("/api/client", (req, res) => {
-  db.query("SELECT id, deck_name FROM DECKS", (err, results) => {
+  db.query("SELECT id, deckname FROM DECK", (err, results) => {
     if (err) throw err;
     res.json(results);
   });
@@ -45,22 +45,22 @@ app.get("/api/deck/:id/cards", (req, res) => {
   // SQLクエリを実行してカードデータを取得
   const query = `
     SELECT 
-      cards.id, 
-      notes.flds, 
-      cards.queue, 
-      cards.type,
-      cards.due, 
-      cards.ivl, 
-      cards.factor, 
-      cards.reps, 
-      cards.lapses,
-      cards.odue, 
-      cards.odid,
-      cards.flags,
-      cards.data
-    FROM cards
-    JOIN notes ON cards.nid = notes.id
-    WHERE cards.did = ? AND cards.due < ?
+      card.id, 
+      note.flds, 
+      card.queue, 
+      card.type,
+      card.due, 
+      card.ivl, 
+      card.factor, 
+      card.reps, 
+      card.lapses,
+      card.odue, 
+      card.odid,
+      card.flags,
+      card.data
+    FROM card
+    JOIN note ON card.nid = note.id
+    WHERE card.did = ? AND card.due < ?
   `;
 
   db.query(query, [cardId, now], (err, results) => {
@@ -95,6 +95,39 @@ app.get("/api/deck/:id/cards", (req, res) => {
 //   res.status(200).json({ message: "Evaluation received" });
 // });
 // Start the server
+
+app.post("/api/card/:id/update-due", (req, res) => {
+  const cardId = req.params.id;
+  const oneDayLater = Math.floor(Date.now() / 1000) + 86400; // 1日後のUNIXタイムスタンプ（86400秒 = 24時間）
+
+  const query = "UPDATE card SET due = ? WHERE id = ?";
+
+  db.query(query, [oneDayLater, cardId], (err, result) => {
+    if (err) {
+      console.error("Error updating due:", err);
+      res.status(500).send("Server error");
+    } else {
+      res.send("Due updated successfully");
+    }
+  });
+});
+
+app.post("/api/card/:id/update-due", (req, res) => {
+  const cardId = req.params.id; // リクエストURLからカードIDを取得
+  const oneDayLater = Math.floor(Date.now() / 1000) + 86400; // 現在のUNIXタイムスタンプに86400秒（1日分）を追加
+
+  const query = "UPDATE card SET due = ? WHERE id = ?"; // SQLクエリで due 値を更新
+
+  db.query(query, [oneDayLater, cardId], (err, result) => {
+    if (err) {
+      console.error("Error updating due:", err);
+      res.status(500).send("Server error");
+    } else {
+      res.send("Due updated successfully");
+    }
+  });
+});
+
 app.listen(port, () => {
   console.log(`API server running on port ${port}`);
 });
