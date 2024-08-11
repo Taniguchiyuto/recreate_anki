@@ -96,35 +96,84 @@ app.get("/api/deck/:id/cards", (req, res) => {
 // });
 // Start the server
 
-app.post("/api/card/:id/update-due", (req, res) => {
+// app.post("/api/card/:id/update-due", (req, res) => {
+//   const cardId = req.params.id;
+//   const oneDayLater = Math.floor(Date.now() / 1000) + 86400; // 1日後のUNIXタイムスタンプ（86400秒 = 24時間）
+
+//   const query = "UPDATE card SET due = ? WHERE id = ?";
+
+//   db.query(query, [oneDayLater, cardId], (err, result) => {
+//     if (err) {
+//       console.error("Error updating due:", err);
+//       res.status(500).send("Server error");
+//     } else {
+//       res.send("Due updated successfully");
+//     }
+//   });
+// });
+
+app.post("/api/card/:id/update", (req, res) => {
   const cardId = req.params.id;
-  const oneDayLater = Math.floor(Date.now() / 1000) + 86400; // 1日後のUNIXタイムスタンプ（86400秒 = 24時間）
+  const { option } = req.body; // クライアントからの選択肢 (again, hard, good, easy)
 
-  const query = "UPDATE card SET due = ? WHERE id = ?";
-
-  db.query(query, [oneDayLater, cardId], (err, result) => {
+  // カード情報を取得
+  const selectQuery = "SELECT ivl, factor, reps, lapses FROM card WHERE id = ?";
+  db.query(selectQuery, [cardId], (err, result) => {
     if (err) {
-      console.error("Error updating due:", err);
+      console.error("Error fetching card:", err);
       res.status(500).send("Server error");
-    } else {
-      res.send("Due updated successfully");
+      return;
     }
-  });
-});
 
-app.post("/api/card/:id/update-due", (req, res) => {
-  const cardId = req.params.id; // リクエストURLからカードIDを取得
-  const oneDayLater = Math.floor(Date.now() / 1000) + 86400; // 現在のUNIXタイムスタンプに86400秒（1日分）を追加
-
-  const query = "UPDATE card SET due = ? WHERE id = ?"; // SQLクエリで due 値を更新
-
-  db.query(query, [oneDayLater, cardId], (err, result) => {
-    if (err) {
-      console.error("Error updating due:", err);
-      res.status(500).send("Server error");
-    } else {
-      res.send("Due updated successfully");
+    if (result.length === 0) {
+      res.status(404).send("Card not found");
+      return;
     }
+
+    let { ivl, factor, reps, lapses } = result[0];
+
+    // 選択に基づいて次のインターバルを計算
+    switch (option) {
+      case "again":
+        lapses += 1;
+        ivl = 1; // 再試行時のインターバル（1日）
+        factor = Math.max(factor - 200, 1300); // イージーファクターの減少、最低1300にする
+        break;
+      case "hard":
+        ivl = ivl * 1.2; // ハード選択時のインターバル
+        factor = Math.max(factor - 150, 1300); // イージーファクターを減少
+        break;
+      case "good":
+        reps += 1;
+        ivl = (ivl * factor) / 1000; // グッド選択時のインターバル計算
+        break;
+      case "easy":
+        reps += 1;
+        ivl = ((ivl * factor) / 1000) * 1.5; // イージー選択時のインターバル計算
+        factor = factor + 150; // イージーファクターを増加
+        break;
+      default:
+        res.status(400).send("Invalid option");
+        return;
+    }
+
+    // 次の復習日を計算
+    const due = Math.floor(Date.now() / 1000) + Math.floor(ivl * 86400); // インターバル（日数）を秒に変換して追加
+
+    // カードの情報を更新
+    const updateQuery = `
+          UPDATE card 
+          SET ivl = ?, factor = ?, reps = ?, lapses = ?, due = ? 
+          WHERE id = ?
+      `;
+    db.query(updateQuery, [ivl, factor, reps, lapses, due, cardId], (err) => {
+      if (err) {
+        console.error("Error updating card:", err);
+        res.status(500).send("Server error");
+      } else {
+        res.send("Card updated successfully");
+      }
+    });
   });
 });
 

@@ -5,7 +5,7 @@ import Card from "./Card";
 function DeckDetail() {
   const { id } = useParams();
   const [cards, setCards] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0); // 現在のカードインデックス
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     fetch(`http://localhost:8000/api/deck/${id}/cards`)
@@ -23,16 +23,19 @@ function DeckDetail() {
   const handleOptionSelect = (option) => {
     const cardId = cards[currentIndex].id;
 
-    // dueを1日後に更新するリクエストを送信
-    fetch(`http://localhost:8000/api/card/${cardId}/update-due`, {
+    fetch(`http://localhost:8000/api/card/${cardId}/update`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ option }),
     })
       .then((response) => response.text())
       .then((data) => {
-        console.log(data); // "Due updated successfully" のメッセージが表示される
+        console.log(data);
         setCurrentIndex((prevIndex) => (prevIndex + 1) % cards.length);
       })
-      .catch((error) => console.error("Error updating due:", error));
+      .catch((error) => console.error("Error updating card:", error));
   };
 
   return (
@@ -43,18 +46,10 @@ function DeckDetail() {
           <Card flds={cards[currentIndex].flds} />
           <div>
             <p>Choose the correct answer:</p>
-            <button onClick={() => handleOptionSelect("option1")}>
-              Option 1
-            </button>
-            <button onClick={() => handleOptionSelect("option2")}>
-              Option 2
-            </button>
-            <button onClick={() => handleOptionSelect("option3")}>
-              Option 3
-            </button>
-            <button onClick={() => handleOptionSelect("option4")}>
-              Option 4
-            </button>
+            <button onClick={() => handleOptionSelect("again")}>Again</button>
+            <button onClick={() => handleOptionSelect("hard")}>Hard</button>
+            <button onClick={() => handleOptionSelect("good")}>Good</button>
+            <button onClick={() => handleOptionSelect("easy")}>Easy</button>
           </div>
         </>
       ) : (
