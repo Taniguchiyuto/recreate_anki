@@ -53,7 +53,7 @@ function DeckDetail() {
           </div>
         </>
       ) : (
-        <p>Loading cards...</p>
+        <p>今日の学習は終了しました</p>
       )}
     </div>
   );
