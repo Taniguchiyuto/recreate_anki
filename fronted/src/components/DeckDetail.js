@@ -7,6 +7,7 @@ function DeckDetail() {
   const [cards, setCards] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [updatedIvl, setUpdatedIvl] = useState(null); // 更新されたivlを管理する状態
+  const [isFinished, setIsFinished] = useState(false); // 学習が終了したかどうかを管理する状態
 
   useEffect(() => {
     fetch(`http://localhost:8000/api/deck/${id}/cards`)
@@ -31,13 +32,18 @@ function DeckDetail() {
       },
       body: JSON.stringify({ option }),
     })
-      .then((response) => response.json()) // response.json() でレスポンスをJSONとしてパース
+      .then((response) => response.json())
       .then((data) => {
         console.log(data);
-        setUpdatedIvl(data.ivl); // ivlを状態に保存
+        setUpdatedIvl(data.ivl);
 
-        // 次のカードに移動
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % cards.length);
+        if (currentIndex + 1 < cards.length) {
+          // まだカードが残っている場合は次のカードに進む
+          setCurrentIndex((prevIndex) => prevIndex + 1);
+        } else {
+          // 全てのカードを学習し終えた場合
+          setIsFinished(true);
+        }
       })
       .catch((error) => console.error("Error updating card:", error));
   };
@@ -45,7 +51,9 @@ function DeckDetail() {
   return (
     <div>
       <h1>Deck {id}</h1>
-      {cards.length > 0 ? (
+      {isFinished ? (
+        <p>今日の学習は終了しました。</p>
+      ) : cards.length > 0 ? (
         <>
           <Card flds={cards[currentIndex].flds} />
           <div>
@@ -62,7 +70,7 @@ function DeckDetail() {
           )}
         </>
       ) : (
-        <p>今日の学習は終了しました</p>
+        <p>Loading cards...</p>
       )}
     </div>
   );
