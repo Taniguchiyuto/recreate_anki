@@ -6,6 +6,7 @@ function DeckDetail() {
   const { id } = useParams();
   const [cards, setCards] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [updatedIvl, setUpdatedIvl] = useState(null); // 更新されたivlを管理する状態
 
   useEffect(() => {
     fetch(`http://localhost:8000/api/deck/${id}/cards`)
@@ -30,9 +31,12 @@ function DeckDetail() {
       },
       body: JSON.stringify({ option }),
     })
-      .then((response) => response.text())
+      .then((response) => response.json()) // response.json() でレスポンスをJSONとしてパース
       .then((data) => {
         console.log(data);
+        setUpdatedIvl(data.ivl); // ivlを状態に保存
+
+        // 次のカードに移動
         setCurrentIndex((prevIndex) => (prevIndex + 1) % cards.length);
       })
       .catch((error) => console.error("Error updating card:", error));
@@ -51,6 +55,11 @@ function DeckDetail() {
             <button onClick={() => handleOptionSelect("good")}>Good</button>
             <button onClick={() => handleOptionSelect("easy")}>Easy</button>
           </div>
+          {updatedIvl !== null && (
+            <p>
+              先程学習したカードは{updatedIvl}日後に復習することになっています。
+            </p>
+          )}
         </>
       ) : (
         <p>今日の学習は終了しました</p>

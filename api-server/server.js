@@ -171,7 +171,8 @@ app.post("/api/card/:id/update", (req, res) => {
         console.error("Error updating card:", err);
         res.status(500).send("Server error");
       } else {
-        res.send("Card updated successfully");
+        // 更新されたivlを含むレスポンスをクライアントに返す
+        res.json({ message: "Card updated successfully", ivl });
       }
     });
   });
