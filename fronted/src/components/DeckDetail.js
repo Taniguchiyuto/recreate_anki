@@ -6,8 +6,9 @@ function DeckDetail() {
   const { id } = useParams();
   const [cards, setCards] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [updatedIvl, setUpdatedIvl] = useState(null); // 更新されたivlを管理する状態
-  const [isFinished, setIsFinished] = useState(false); // 学習が終了したかどうかを管理する状態
+  const [updatedIvl, setUpdatedIvl] = useState(null);
+  const [isFinished, setIsFinished] = useState(false);
+  const [generatedMessage, setGeneratedMessage] = useState(null); // 追加
 
   useEffect(() => {
     fetch(`http://localhost:8000/api/deck/${id}/cards`)
@@ -34,14 +35,12 @@ function DeckDetail() {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         setUpdatedIvl(data.ivl);
+        setGeneratedMessage(data.generatedMessage); // 生成されたメッセージを保存
 
         if (currentIndex + 1 < cards.length) {
-          // まだカードが残っている場合は次のカードに進む
           setCurrentIndex((prevIndex) => prevIndex + 1);
         } else {
-          // 全てのカードを学習し終えた場合
           setIsFinished(true);
         }
       })
@@ -67,6 +66,11 @@ function DeckDetail() {
             <p>
               先程学習したカードは{updatedIvl}日後に復習することになっています。
             </p>
+          )}
+          {generatedMessage && (
+            <p style={{ fontStyle: "italic", color: "green" }}>
+              {generatedMessage}
+            </p> // 生成されたメッセージを表示
           )}
         </>
       ) : (

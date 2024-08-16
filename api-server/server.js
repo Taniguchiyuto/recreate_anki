@@ -1,6 +1,8 @@
+require("dotenv").config();
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
+const axios = require("axios");
 
 const app = express();
 const port = 8000;
@@ -11,38 +13,71 @@ app.use(express.json());
 
 // Create a connection to the database
 const db = mysql.createConnection({
-  host: "mysql",
-  user: "Alan",
-  password: "kokekiko2525",
-  database: "anki_db",
+  host: process.env.DB_HOST || "mysql",
+  user: process.env.DB_USER || "Alan",
+  password: process.env.DB_PASSWORD || "kokekiko2525",
+  database: process.env.DB_NAME || "anki_db",
 });
 
 // Open the MySQL connection
 db.connect((error) => {
-  if (error) throw error;
+  if (error) {
+    console.error("Failed to connect to the database:", error.message);
+    return;
+  }
   console.log("Successfully connected to the database.");
-
-  // データベース接続のテストクエリ
-  db.query("SELECT 1 + 1 AS solution", (err, results) => {
-    if (err) throw err;
-    console.log("The solution is: ", results[0].solution);
-  });
 });
+
+// ChatGPT API 呼び出し関数
+async function generateText(prompt) {
+  try {
+    console.log("Sending request to ChatGPT API with prompt:", prompt);
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4",
+        messages: [{ role: "system", content: prompt }],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log("Received response from ChatGPT API:", response.data);
+    return response.data.choices[0].message.content;
+  } catch (error) {
+    console.error(
+      "Error generating text with ChatGPT:",
+      error.response ? error.response.data : error.message
+    );
+    return null;
+  }
+}
 
 // Define API endpoints
 app.get("/api/client", (req, res) => {
+  console.log("Received request for /api/client");
   db.query("SELECT id, deckname FROM DECK", (err, results) => {
-    if (err) throw err;
+    if (err) {
+      console.error("Database query error:", err);
+      res.status(500).json({ error: "Server error" });
+      return;
+    }
+    console.log("Sending response with deck data:", results);
     res.json(results);
   });
 });
 
 app.get("/api/deck/:id/cards", (req, res) => {
-  console.log("kkoko");
+  console.log(
+    "Received request for /api/deck/:id/cards with id:",
+    req.params.id
+  );
   const cardId = req.params.id;
   const now = Math.floor(Date.now() / 1000); // 現在のUNIXタイムスタンプ
 
-  // SQLクエリを実行してカードデータを取得
   const query = `
     SELECT 
       card.id, 
@@ -65,72 +100,48 @@ app.get("/api/deck/:id/cards", (req, res) => {
 
   db.query(query, [cardId, now], (err, results) => {
     if (err) {
-      console.error("データ取得エラー:", err);
-      res.status(500).send("サーバーエラー");
-      console.log("ko");
+      console.error("Error fetching cards:", err);
+      res.status(500).json({ error: "Server error" });
       return;
     }
 
     if (results.length === 0) {
-      res.status(404).send("カードが見つかりません");
-      console.log("ここ");
+      console.log("No cards found for deck id:", cardId);
+      res.status(404).json({ error: "No cards found" });
     } else {
+      console.log("Sending response with card data:", results);
       res.json(results);
-      console.log("koko");
     }
   });
 });
 
-// app.post("/api/deck/:deckId/cards/:cardId/evaluate", (req, res) => {
-//   const { deckId, cardId } = req.params;
-//   const { evaluation } = req.body;
-
-//   // ここで評価の処理を実装
-//   console.log(
-//     `Received evaluation for card ${cardId} in deck ${deckId}:`,
-//     evaluation
-//   );
-
-//   // レスポンスを返す
-//   res.status(200).json({ message: "Evaluation received" });
-// });
-// Start the server
-
-// app.post("/api/card/:id/update-due", (req, res) => {
-//   const cardId = req.params.id;
-//   const oneDayLater = Math.floor(Date.now() / 1000) + 86400; // 1日後のUNIXタイムスタンプ（86400秒 = 24時間）
-
-//   const query = "UPDATE card SET due = ? WHERE id = ?";
-
-//   db.query(query, [oneDayLater, cardId], (err, result) => {
-//     if (err) {
-//       console.error("Error updating due:", err);
-//       res.status(500).send("Server error");
-//     } else {
-//       res.send("Due updated successfully");
-//     }
-//   });
-// });
-
-app.post("/api/card/:id/update", (req, res) => {
+app.post("/api/card/:id/update", async (req, res) => {
   const cardId = req.params.id;
   const { option } = req.body; // クライアントからの選択肢 (again, hard, good, easy)
 
-  // カード情報を取得
+  console.log(
+    "Received request to update card with id:",
+    cardId,
+    "and option:",
+    option
+  );
+
   const selectQuery = "SELECT ivl, factor, reps, lapses FROM card WHERE id = ?";
-  db.query(selectQuery, [cardId], (err, result) => {
+  db.query(selectQuery, [cardId], async (err, result) => {
     if (err) {
       console.error("Error fetching card:", err);
-      res.status(500).send("Server error");
+      res.status(500).json({ error: "Server error" });
       return;
     }
 
     if (result.length === 0) {
-      res.status(404).send("Card not found");
+      console.log("Card not found with id:", cardId);
+      res.status(404).json({ error: "Card not found" });
       return;
     }
 
     let { ivl, factor, reps, lapses } = result[0];
+    console.log("Current card data:", { ivl, factor, reps, lapses });
 
     // 選択に基づいて次のインターバルを計算
     switch (option) {
@@ -153,14 +164,22 @@ app.post("/api/card/:id/update", (req, res) => {
         factor = factor + 150; // イージーファクターを増加
         break;
       default:
-        res.status(400).send("Invalid option");
+        console.log("Invalid option received:", option);
+        res.status(400).json({ error: "Invalid option" });
         return;
     }
 
-    // 次の復習日を計算
+    console.log("Updated card data:", { ivl, factor, reps, lapses });
+
     const due = Math.floor(Date.now() / 1000) + Math.floor(ivl * 86400); // インターバル（日数）を秒に変換して追加
 
-    // カードの情報を更新
+    let generatedText = null;
+    if (factor >= 2900) {
+      const prompt = `Your factor is now ${factor}. Please generate a motivational message.`;
+      generatedText = await generateText(prompt);
+      console.log("Generated motivational message:", generatedText);
+    }
+
     const updateQuery = `
           UPDATE card 
           SET ivl = ?, factor = ?, reps = ?, lapses = ?, due = ? 
@@ -169,10 +188,22 @@ app.post("/api/card/:id/update", (req, res) => {
     db.query(updateQuery, [ivl, factor, reps, lapses, due, cardId], (err) => {
       if (err) {
         console.error("Error updating card:", err);
-        res.status(500).send("Server error");
+        res.status(500).json({ error: "Server error" });
       } else {
-        // 更新されたivlを含むレスポンスをクライアントに返す
-        res.json({ message: "Card updated successfully", ivl });
+        console.log("Card updated successfully:", {
+          ivl,
+          factor,
+          reps,
+          lapses,
+          due,
+          generatedText,
+        });
+        res.json({
+          message: "Card updated successfully",
+          ivl,
+          factor,
+          generatedText,
+        });
       }
     });
   });
