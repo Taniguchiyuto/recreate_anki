@@ -49,29 +49,31 @@ model Note {
 }
 
 model Card {
-  id      Int     @id @default(autoincrement())
-  nid     Int
-  ord     Int     @map("ord")
-  mod     Int     @map("mod")
-  usn     Int
-  type    Int     @map("type")
-  queue   Int
-  due     Int
-  ivl     Float?
-  factor  Float?
-  reps    Int?
-  lapses  Int?
-  left    Int?    @map("left")
-  odue    Int?
-  odid    Int?
-  flags   Int?
-  data    String? @db.Text
-  did     Int     // 新しいフィールド
+  id             Int      @id @default(autoincrement())
+  nid            Int
+  ord            Int      @map("ord")
+  mod            Int      @map("mod")
+  usn            Int
+  type           Int      @map("type")
+  queue          Int
+  due            Int
+  ivl            Float?
+  factor         Float?
+  reps           Int?
+  lapses         Int?
+  left           Int?     @map("left")
+  odue           Int?
+  odid           Int?
+  flags          Int?
+  data           String?  @db.Text
+  did            Int      // 新しいフィールド
+  generated_text String?  // 新しく追加するフィールド
 
-  note    Note    @relation(fields: [nid], references: [id])
-  deck    Deck    @relation(fields: [did], references: [id])
-  revlogs Revlog[]
+  note           Note     @relation(fields: [nid], references: [id])
+  deck           Deck     @relation(fields: [did], references: [id])
+  revlogs        Revlog[]
 }
+
 
 
 
