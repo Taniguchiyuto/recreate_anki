@@ -67,7 +67,7 @@ model Card {
   flags          Int?
   data           String?  @db.Text
   did            Int      // 新しいフィールド
-  generated_text String?  // 新しく追加するフィールド
+  generated_text String?  @db.Text 　// 新しく追加するフィールド
 
   note           Note     @relation(fields: [nid], references: [id])
   deck           Deck     @relation(fields: [did], references: [id])

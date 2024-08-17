@@ -182,30 +182,34 @@ app.post("/api/card/:id/update", async (req, res) => {
 
     const updateQuery = `
           UPDATE card 
-          SET ivl = ?, factor = ?, reps = ?, lapses = ?, due = ? 
+          SET ivl = ?, factor = ?, reps = ?, lapses = ?, due = ?, generated_text = ?
           WHERE id = ?
       `;
-    db.query(updateQuery, [ivl, factor, reps, lapses, due, cardId], (err) => {
-      if (err) {
-        console.error("Error updating card:", err);
-        res.status(500).json({ error: "Server error" });
-      } else {
-        console.log("Card updated successfully:", {
-          ivl,
-          factor,
-          reps,
-          lapses,
-          due,
-          generatedText,
-        });
-        res.json({
-          message: "Card updated successfully",
-          ivl,
-          factor,
-          generatedText,
-        });
+    db.query(
+      updateQuery,
+      [ivl, factor, reps, lapses, due, generatedText, cardId],
+      (err) => {
+        if (err) {
+          console.error("Error updating card:", err);
+          res.status(500).json({ error: "Server error" });
+        } else {
+          console.log("Card updated successfully:", {
+            ivl,
+            factor,
+            reps,
+            lapses,
+            due,
+            generatedText,
+          });
+          res.json({
+            message: "Card updated successfully",
+            ivl,
+            factor,
+            generatedText,
+          });
+        }
       }
-    });
+    );
   });
 });
 

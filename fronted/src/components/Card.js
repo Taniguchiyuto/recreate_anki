@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 
-function Card({ flds }) {
+function Card({ flds, factor, generated_text }) {
   const [showAnswer, setShowAnswer] = useState(false);
 
-  const question = flds[0];
+  // factorが2900以上ならquestionにgenerated_textを使用
+  const question = factor >= 2900 && generated_text ? generated_text : flds[0];
   const answer = flds[1];
 
   const handleCardClick = () => {

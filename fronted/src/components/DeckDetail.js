@@ -54,7 +54,12 @@ function DeckDetail() {
         <p>今日の学習は終了しました。</p>
       ) : cards.length > 0 ? (
         <>
-          <Card flds={cards[currentIndex].flds} />
+          {/* factor と generated_text を Card コンポーネントに渡す */}
+          <Card
+            flds={cards[currentIndex].flds}
+            factor={cards[currentIndex].factor}
+            generated_text={cards[currentIndex].generated_text}
+          />
           <div>
             <p>Choose the correct answer:</p>
             <button onClick={() => handleOptionSelect("again")}>Again</button>
@@ -70,7 +75,7 @@ function DeckDetail() {
           {generatedMessage && (
             <p style={{ fontStyle: "italic", color: "green" }}>
               {generatedMessage}
-            </p> // 生成されたメッセージを表示
+            </p>
           )}
         </>
       ) : (
