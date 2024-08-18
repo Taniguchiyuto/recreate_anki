@@ -37,7 +37,7 @@ function DeckDetail() {
       .then((data) => {
         setUpdatedIvl(data.ivl);
         setGeneratedMessage(data.generatedMessage); // 生成されたメッセージを保存
-
+        console.log(data.generatedMessage);
         if (currentIndex + 1 < cards.length) {
           setCurrentIndex((prevIndex) => prevIndex + 1);
         } else {
@@ -54,8 +54,9 @@ function DeckDetail() {
         <p>今日の学習は終了しました。</p>
       ) : cards.length > 0 ? (
         <>
-          {/* factor と generated_text を Card コンポーネントに渡す */}
+          {/* currentIndexをkeyとして使用して、カードが変わる度にCardコンポーネントを再生成 */}
           <Card
+            key={currentIndex} // 修正箇所
             flds={cards[currentIndex].flds}
             factor={cards[currentIndex].factor}
             generated_text={cards[currentIndex].generated_text}
