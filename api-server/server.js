@@ -69,8 +69,7 @@ async function generateTextWithCardData(cardId) {
     }
 
     const flds = JSON.parse(results[0].flds);
-    const prompt = `Please generate a sentence using the word "${flds[1]}"`;
-
+    const prompt = `京大レベルの世界史の一問一答です。"${flds[0]}"が答えとなるような問題文を生成してみてください`;
     // ChatGPT API を呼び出してテキストを生成
     return await generateText(prompt);
   } catch (error) {
