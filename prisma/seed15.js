@@ -60,7 +60,7 @@ async function main() {
                 queue: 0,
                 due: Math.floor(Date.now() / 1000),
                 ivl: 1.0,
-                factor: 2500,
+                factor: 3000,
                 reps: 0,
                 lapses: 0,
                 left: 0,
